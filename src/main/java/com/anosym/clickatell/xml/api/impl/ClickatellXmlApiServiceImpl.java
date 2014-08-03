@@ -30,18 +30,15 @@ public class ClickatellXmlApiServiceImpl implements ClickatellXmlApiService {
 
     private static final Logger LOGGER = Logger.getLogger(ClickatellXmlApiServiceImpl.class.getName());
 
-    @Inject
-    private ClickatellXmlApiConfigurationService xmlApiConfigurationService;
-
-    public ClickatellXmlApiServiceImpl() {
-    }
+    private final ClickatellXmlApiConfigurationService xmlApiConfigurationService;
 
     /**
      * Provided if to be invoked from jse environment.
      *
      * @param xmlApiConfigurationService
      */
-    public ClickatellXmlApiServiceImpl(ClickatellXmlApiConfigurationService xmlApiConfigurationService) {
+    @Inject
+    public ClickatellXmlApiServiceImpl(final ClickatellXmlApiConfigurationService xmlApiConfigurationService) {
         this.xmlApiConfigurationService = xmlApiConfigurationService;
     }
 
