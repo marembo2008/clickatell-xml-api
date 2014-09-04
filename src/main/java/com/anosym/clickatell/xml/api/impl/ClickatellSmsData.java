@@ -224,4 +224,10 @@ public class ClickatellSmsData {
     public void setSequence_no(String sequence_no) {
         this.sequence_no = sequence_no;
     }
+
+    @Override
+    public String toString() {
+        return "ClickatellSmsData{" + "api_id=" + api_id + ", user=" + user + ", password=" + password + ", session_id=" + session_id + ", to=" + to + ", text=" + text + ", callback=" + callback + ", cliMsgId=" + cliMsgId + ", concat=" + concat + ", deliv_ack=" + deliv_ack + ", deliv_time=" + deliv_time + ", from=" + from + ", msg_type=" + msg_type + ", udh=" + udh + ", unicode=" + unicode + ", validity=" + validity + ", req_feat=" + req_feat + ", max_credits=" + max_credits + ", queue=" + queue + ", escalate=" + escalate + ", sequence_no=" + sequence_no + '}';
+    }
+
 }

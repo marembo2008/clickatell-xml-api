@@ -28,7 +28,7 @@ import javax.inject.Inject;
  */
 public class ClickatellXmlApiServiceImpl implements ClickatellXmlApiService {
 
-    private static final Logger LOGGER = Logger.getLogger(ClickatellXmlApiServiceImpl.class.getName());
+    private static final Logger LOG = Logger.getLogger(ClickatellXmlApiServiceImpl.class.getName());
 
     private final ClickatellXmlApiConfigurationService xmlApiConfigurationService;
 
@@ -53,21 +53,26 @@ public class ClickatellXmlApiServiceImpl implements ClickatellXmlApiService {
             } else {
                 failedSentMsg++;
             }
-            LOGGER.log(Level.INFO,
-                       "successfullySentMsg: {0}, failedSentMsg: {1}",
-                       new int[]{successfullySentMsg, failedSentMsg});
+            LOG.log(Level.INFO,
+                    "successfullySentMsg: {0}, failedSentMsg: {1}",
+                    new int[]{successfullySentMsg, failedSentMsg});
         }
         return success;
     }
 
     @Override
     public boolean sendSms(String message, String toPhoneNumber) {
+        if (xmlApiConfigurationService.isSmsSimulation()) {
+            LOG.log(Level.INFO, "SMS: {0}", message);
+            LOG.log(Level.INFO, "TO: {0}", toPhoneNumber);
+            return true;
+        }
         try {
             ClickatellApi capi = getApi(toPhoneNumber, message);
             VElement elem = new VMarshaller<ClickatellApi>().marshall(capi);
             String value = elem.toXmlString();
             String request = "data=" + value;
-            LOGGER.log(Level.INFO, request);
+            LOG.log(Level.INFO, request);
             URL url = new URL(xmlApiConfigurationService.getXmlApiUrl());
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setDoOutput(true);
@@ -85,12 +90,12 @@ public class ClickatellXmlApiServiceImpl implements ClickatellXmlApiService {
             while ((str = reader.readLine()) != null) {
                 result += str;
             }
-            LOGGER.log(Level.INFO, result);
+            LOG.log(Level.INFO, result);
             if (!result.isEmpty()) {
                 return getResultString(result);
             }
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
+            LOG.log(Level.SEVERE, null, ex);
         }
         return false;
     }

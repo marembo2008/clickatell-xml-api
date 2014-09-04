@@ -3,14 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package com.anosym.clickatell.xml.api.impl;
 
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 import com.anosym.vjax.annotations.IgnoreGeneratedAttribute;
 import com.anosym.vjax.annotations.Markup;
 import com.anosym.vjax.annotations.NoNamespace;
@@ -24,19 +22,24 @@ import com.anosym.vjax.annotations.NoNamespace;
 @NoNamespace
 public class ClickatellApi {
 
-  private ClickatellSmsData clickatellSmsData;
+    private ClickatellSmsData clickatellSmsData;
 
-  public ClickatellApi(ClickatellSmsData clickatellSmsData) {
-    this.clickatellSmsData = clickatellSmsData;
-  }
+    public ClickatellApi(ClickatellSmsData clickatellSmsData) {
+        this.clickatellSmsData = clickatellSmsData;
+    }
 
-  @Markup(name = "sendMsg")
-  public ClickatellSmsData getClickatellSmsData() {
-    return clickatellSmsData;
-  }
+    @Markup(name = "sendMsg")
+    public ClickatellSmsData getClickatellSmsData() {
+        return clickatellSmsData;
+    }
 
-  public void setClickatellSmsData(ClickatellSmsData clickatellSmsData) {
-    this.clickatellSmsData = clickatellSmsData;
-  }
+    public void setClickatellSmsData(ClickatellSmsData clickatellSmsData) {
+        this.clickatellSmsData = clickatellSmsData;
+    }
+
+    @Override
+    public String toString() {
+        return "ClickatellApi{" + "clickatellSmsData=" + clickatellSmsData + '}';
+    }
+
 }
-
