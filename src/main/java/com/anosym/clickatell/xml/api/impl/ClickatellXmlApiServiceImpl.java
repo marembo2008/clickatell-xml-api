@@ -15,10 +15,13 @@ import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.Nonnull;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 
 import static com.anosym.vjax.xml.VDocument.parseDocumentFromString;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Strings.emptyToNull;
 
 /**
  *
@@ -42,7 +45,7 @@ public class ClickatellXmlApiServiceImpl implements ClickatellXmlApiService {
     }
 
     @Override
-    public boolean sendSms(List<String> toPhoneNumbers, String message) {
+    public boolean sendSms(@Nonnull final List<String> toPhoneNumbers, @Nonnull final String message) {
         int successfullySentMsg = 0;
         int failedSentMsg = 0;
         boolean success = false;
@@ -60,7 +63,15 @@ public class ClickatellXmlApiServiceImpl implements ClickatellXmlApiService {
     }
 
     @Override
-    public boolean sendSms(String message, String toPhoneNumber) {
+    public boolean sendSms(@Nonnull final String message, @Nonnull final String toPhoneNumber) {
+        return sendSms(message, toPhoneNumber, true);
+    }
+
+    @Override
+    public boolean sendSms(@Nonnull final String message, @Nonnull final String toPhoneNumber, final boolean useSenderId) {
+        checkNotNull(emptyToNull(message), "the sms message must be specified");
+        checkNotNull(emptyToNull(toPhoneNumber), "the sms toPhoneNumber must be specified");
+
         LOG.log(Level.INFO, "SMS: {0}", message);
         LOG.log(Level.INFO, "TO: {0}", toPhoneNumber);
 
@@ -69,7 +80,7 @@ public class ClickatellXmlApiServiceImpl implements ClickatellXmlApiService {
         }
 
         try {
-            final ClickatellApi capi = getApi(toPhoneNumber, message);
+            final ClickatellApi capi = getApi(toPhoneNumber, message, useSenderId);
             final VElement elem = new VMarshaller<ClickatellApi>().marshall(capi);
             final String value = elem.toXmlString();
             final String request = "data=" + value;
@@ -123,11 +134,11 @@ public class ClickatellXmlApiServiceImpl implements ClickatellXmlApiService {
         return false;
     }
 
-    private ClickatellApi getApi(String toPhoneNumber, String message) {
+    private ClickatellApi getApi(String toPhoneNumber, String message, final boolean useSenderId) {
         final String apiId = xmlApiConfigurationService.getApiId();
         final String username = xmlApiConfigurationService.getUsername();
         final String password = xmlApiConfigurationService.getPassword();
-        final String fromNumber = xmlApiConfigurationService.getFromNumber();
+        final String fromNumber = useSenderId ? xmlApiConfigurationService.getFromNumber() : null;
         final ClickatellSmsData sms = new ClickatellSmsData(apiId, username, password, toPhoneNumber, message, fromNumber);
 
         return new ClickatellApi(sms);

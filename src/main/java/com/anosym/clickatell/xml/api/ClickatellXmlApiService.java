@@ -1,6 +1,7 @@
 package com.anosym.clickatell.xml.api;
 
 import java.util.List;
+import javax.annotation.Nonnull;
 
 /**
  *
@@ -8,7 +9,9 @@ import java.util.List;
  */
 public interface ClickatellXmlApiService {
 
-    boolean sendSms(List<String> toPhoneNumbers, String message);
+    boolean sendSms(@Nonnull final List<String> toPhoneNumbers, @Nonnull final String message);
 
-    boolean sendSms(String message, String toPhoneNumber);
+    boolean sendSms(@Nonnull final String message, @Nonnull final String toPhoneNumber);
+
+    boolean sendSms(@Nonnull final String message, @Nonnull final String toPhoneNumber, final boolean useSenderId);
 }
