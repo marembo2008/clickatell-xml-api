@@ -15,12 +15,16 @@ import java.net.URL;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
+
+import static com.anosym.vjax.xml.VDocument.parseDocumentFromString;
 
 /**
  *
  * @author marembo
  */
+@Dependent
 public class ClickatellXmlApiServiceImpl implements ClickatellXmlApiService {
 
     private static final Logger LOG = Logger.getLogger(ClickatellXmlApiServiceImpl.class.getName());
@@ -57,35 +61,42 @@ public class ClickatellXmlApiServiceImpl implements ClickatellXmlApiService {
 
     @Override
     public boolean sendSms(String message, String toPhoneNumber) {
+        LOG.log(Level.INFO, "SMS: {0}", message);
+        LOG.log(Level.INFO, "TO: {0}", toPhoneNumber);
+
         if (xmlApiConfigurationService.isSmsSimulation()) {
-            LOG.log(Level.INFO, "SMS: {0}", message);
-            LOG.log(Level.INFO, "TO: {0}", toPhoneNumber);
             return true;
         }
+
         try {
-            ClickatellApi capi = getApi(toPhoneNumber, message);
-            VElement elem = new VMarshaller<ClickatellApi>().marshall(capi);
-            String value = elem.toXmlString();
-            String request = "data=" + value;
+            final ClickatellApi capi = getApi(toPhoneNumber, message);
+            final VElement elem = new VMarshaller<ClickatellApi>().marshall(capi);
+            final String value = elem.toXmlString();
+            final String request = "data=" + value;
             LOG.log(Level.INFO, request);
-            URL url = new URL(xmlApiConfigurationService.getXmlApiUrl());
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+            final URL url = new URL(xmlApiConfigurationService.getXmlApiUrl());
+            final HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setDoOutput(true);
             urlConnection.setUseCaches(false);
             urlConnection.setRequestMethod("POST");
-            OutputStream out = urlConnection.getOutputStream();
-            try (DataOutputStream dOut = new DataOutputStream(out)) {
+
+            final OutputStream out = urlConnection.getOutputStream();
+            try (final DataOutputStream dOut = new DataOutputStream(out)) {
                 dOut.writeBytes(request);
                 dOut.flush();
             }
-            InputStream inn = urlConnection.getInputStream();
-            final BufferedReader reader = new BufferedReader(new InputStreamReader(inn));
-            String str;
-            String result = "";
-            while ((str = reader.readLine()) != null) {
-                result += str;
+            final InputStream inn = urlConnection.getInputStream();
+            final StringBuilder sb = new StringBuilder();
+            try (final BufferedReader reader = new BufferedReader(new InputStreamReader(inn))) {
+                String str;
+                while ((str = reader.readLine()) != null) {
+                    sb.append(str);
+                }
             }
+            final String result = sb.toString();
             LOG.log(Level.INFO, result);
+
             if (!result.isEmpty()) {
                 return getResultString(result);
             }
@@ -96,11 +107,11 @@ public class ClickatellXmlApiServiceImpl implements ClickatellXmlApiService {
     }
 
     private boolean getResultString(String info) {
-        VDocument doc = VDocument.parseDocumentFromString(info);
-        VElement root = doc.getRootElement();
-        VElement sendMsgResp = root.findChild("sendMsgResp");
+        final VDocument doc = parseDocumentFromString(info);
+        final VElement root = doc.getRootElement();
+        final VElement sendMsgResp = root.findChild("sendMsgResp");
         if (sendMsgResp != null) {
-            VElement fault = sendMsgResp.findChild("fault");
+            final VElement fault = sendMsgResp.findChild("fault");
             if (fault != null) {
                 return false;
             }
@@ -113,12 +124,12 @@ public class ClickatellXmlApiServiceImpl implements ClickatellXmlApiService {
     }
 
     private ClickatellApi getApi(String toPhoneNumber, String message) {
-        ClickatellSmsData sms = new ClickatellSmsData(xmlApiConfigurationService.getApiId(),
-                                                      xmlApiConfigurationService.getUsername(),
-                                                      xmlApiConfigurationService.getPassword(),
-                                                      toPhoneNumber,
-                                                      message,
-                                                      xmlApiConfigurationService.getFromNumber());
+        final String apiId = xmlApiConfigurationService.getApiId();
+        final String username = xmlApiConfigurationService.getUsername();
+        final String password = xmlApiConfigurationService.getPassword();
+        final String fromNumber = xmlApiConfigurationService.getFromNumber();
+        final ClickatellSmsData sms = new ClickatellSmsData(apiId, username, password, toPhoneNumber, message, fromNumber);
+
         return new ClickatellApi(sms);
     }
 }
