@@ -9,7 +9,7 @@
 
     <groupId>com.anosym</groupId>
     <artifactId>clickatell-xml-api</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <dependencies>
